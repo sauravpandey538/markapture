@@ -120,8 +120,8 @@ export function ResumeScannerMock({ title = "markapture — route finder" }: { t
           </div>
         </div>
 
-        <div className={cn("flex flex-col overflow-hidden p-4", PANEL_H)}>
-          <div className="flex min-h-0 flex-1 flex-col justify-start">
+        <div className={cn("flex min-h-0 flex-col p-4", PANEL_H)}>
+          <div className="scroll-panel min-h-0 flex-1 pr-1">
             {phase === "scan" ? (
               <ScanningPanel progress={scanProgress} profile={profile} />
             ) : (
@@ -154,8 +154,8 @@ function ScanningPanel({
   );
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
         <div>
           <p className="text-[10px] uppercase tracking-wider text-text-muted">
             Analysing CV
@@ -212,7 +212,7 @@ function ScanningPanel({
         })}
       </ul>
 
-      <div className="mt-auto space-y-2 pt-4">
+      <div className="space-y-2">
         <SkeletonBlock title="Strengths" count={profile.strengths.length} />
         <SkeletonBlock title="Gaps to address" count={profile.weaknesses.length} />
       </div>

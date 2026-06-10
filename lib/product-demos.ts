@@ -435,6 +435,9 @@ export type InnovatorSection = {
   score: number;
   status: "pass" | "warn" | "scan";
   note: string;
+  detail: string;
+  evidence: string[];
+  scanCheck: string;
 };
 
 export const INNOVATOR_SCENARIOS = [
@@ -442,22 +445,88 @@ export const INNOVATOR_SCENARIOS = [
     venture: "NovaPay — embedded B2B payments",
     readiness: 82,
     sections: [
-      { title: "Innovation thesis", score: 88, status: "pass" as const, note: "Novel API-first treasury model" },
-      { title: "UK market entry", score: 76, status: "warn" as const, note: "Pilot data strong; TAM needs cite" },
-      { title: "Scalability", score: 91, status: "pass" as const, note: "Multi-tenant architecture verified" },
-      { title: "Financial viability", score: 69, status: "warn" as const, note: "Year-3 projections need detail" },
+      {
+        title: "Innovation thesis",
+        score: 88,
+        status: "pass" as const,
+        note: "Novel API-first treasury model",
+        detail: "Patent-pending routing engine; 3 UK pilot merchants with signed LOIs",
+        evidence: ["API specification", "Pilot LOIs ×3", "Tech appendix"],
+        scanCheck: "Benchmarking novelty against existing UK treasury APIs",
+      },
+      {
+        title: "UK market entry",
+        score: 76,
+        status: "warn" as const,
+        note: "Pilot data strong; TAM needs cite",
+        detail: "£2.1M ARR pipeline from 14 UK SMEs — total addressable market uncited",
+        evidence: ["Pilot revenue data", "Customer interviews", "Competitor map"],
+        scanCheck: "Validating UK traction claims and market sizing sources",
+      },
+      {
+        title: "Scalability",
+        score: 91,
+        status: "pass" as const,
+        note: "Multi-tenant architecture verified",
+        detail: "Handles 50k+ concurrent API calls; auto-scaling on AWS with 99.9% uptime SLA",
+        evidence: ["Architecture diagram", "Load-test report", "Infra cost model"],
+        scanCheck: "Stress-testing infrastructure claims against endorser thresholds",
+      },
+      {
+        title: "Financial viability",
+        score: 69,
+        status: "warn" as const,
+        note: "Year-3 projections need detail",
+        detail: "18-month runway at current burn; year-3 revenue assumptions lack sensitivity analysis",
+        evidence: ["P&L forecast", "Cash-flow model", "Funding round deck"],
+        scanCheck: "Auditing 3-year projections and runway assumptions",
+      },
     ],
-    endorserVerdict: "Strong innovation case — resolve 2 plan gaps before filing.",
+    endorserVerdict:
+      "Strong innovation case with credible UK pilots. Resolve TAM citation and year-3 financial detail before filing.",
   },
   {
     venture: "HelixBio — AI drug discovery platform",
     readiness: 74,
     sections: [
-      { title: "Innovation thesis", score: 92, status: "pass" as const, note: "Proprietary molecular graph model" },
-      { title: "UK market entry", score: 58, status: "warn" as const, note: "NHS partnership letter missing" },
-      { title: "Scalability", score: 85, status: "pass" as const, note: "Cloud pipeline cost model solid" },
-      { title: "Financial viability", score: 62, status: "warn" as const, note: "Burn rate vs runway unclear" },
+      {
+        title: "Innovation thesis",
+        score: 92,
+        status: "pass" as const,
+        note: "Proprietary molecular graph model",
+        detail: "Novel GNN architecture achieving 34% faster candidate screening vs baselines",
+        evidence: ["Published preprint", "Model benchmarks", "IP filing receipt"],
+        scanCheck: "Reviewing proprietary model against published state of the art",
+      },
+      {
+        title: "UK market entry",
+        score: 58,
+        status: "warn" as const,
+        note: "NHS partnership letter missing",
+        detail: "2 UK biotech advisors engaged; formal NHS collaboration letter not yet attached",
+        evidence: ["Advisor bios", "UK clinic outreach", "Market sizing draft"],
+        scanCheck: "Checking UK market traction and partnership documentation",
+      },
+      {
+        title: "Scalability",
+        score: 85,
+        status: "pass" as const,
+        note: "Cloud pipeline cost model solid",
+        detail: "GPU cluster scales to 200+ concurrent experiments; unit economics documented per assay",
+        evidence: ["Pipeline architecture", "Cost-per-assay model", "AWS usage report"],
+        scanCheck: "Validating cloud pipeline scalability and unit economics",
+      },
+      {
+        title: "Financial viability",
+        score: 62,
+        status: "warn" as const,
+        note: "Burn rate vs runway unclear",
+        detail: "£1.8M seed secured; monthly burn inconsistent across plan sections ( £95k–£120k )",
+        evidence: ["Cap table", "Burn breakdown", "Investor term sheet"],
+        scanCheck: "Cross-referencing burn rate, runway, and revenue milestones",
+      },
     ],
-    endorserVerdict: "High innovation score — UK traction evidence is the blocker.",
+    endorserVerdict:
+      "High innovation score with solid technical evidence. UK traction and financial consistency are the blockers.",
   },
 ];
