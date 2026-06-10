@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CTAButton } from "@/components/ui/CTAButton";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ProcessTimeline } from "@/components/ui/ProcessTimeline";
-import { EligibilityCheckerMock } from "@/components/product/EligibilityCheckerMock";
+import { ResumeScannerMock } from "@/components/product/ResumeScannerMock";
 import { GLOBAL_TALENT_TIMELINE } from "@/lib/timelines";
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default function GlobalTalentPage() {
               <CTAButton href="/book-consultation">Book consultation</CTAButton>
             </div>
           </div>
-          <EligibilityCheckerMock />
+          <ResumeScannerMock title="markapture — global talent scan" />
         </div>
       </section>
 

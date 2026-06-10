@@ -4,8 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { CTAButton } from "@/components/ui/CTAButton";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ProcessTimeline } from "@/components/ui/ProcessTimeline";
-import { EligibilityCheckerMock } from "@/components/product/EligibilityCheckerMock";
-import { CvReviewMock } from "@/components/product/CvReviewMock";
+import { EndorsementCompareMock } from "@/components/product/EndorsementCompareMock";
+import { ResumeScannerMock } from "@/components/product/ResumeScannerMock";
+import { CvBuilderMock } from "@/components/product/CvBuilderMock";
 import { CustomerCard } from "@/components/customers/CustomerCard";
 import { CUSTOMER_STORIES } from "@/lib/constants";
 import { GLOBAL_TALENT_TIMELINE } from "@/lib/timelines";
@@ -21,40 +22,42 @@ const featured = CUSTOMER_STORIES.filter((s) => s.featured);
 export default function HomePage() {
   return (
     <>
-      {/* Hero — left-aligned, product bleeds wide */}
+      {/* Hero — copy + full-width comparison demo */}
       <section className="relative overflow-hidden">
         <div className="glow-orb glow-orb-purple -right-40 top-0 size-[600px]" aria-hidden />
-        <div className="page-container pb-16 pt-20 md:pb-24 md:pt-28">
-          <div className="grid items-end gap-12 lg:grid-cols-2 lg:gap-16">
-            <div className="max-w-2xl">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
-                UK endorsement preparation
-              </p>
-              <h1 className="mt-4 text-4xl font-semibold tracking-tightest text-text-primary md:text-6xl md:leading-[1.08]">
-                Endorsement preparation,
-                <br />
-                <span className="text-text-secondary">built for clarity</span>
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary md:text-lg">
-                Global Talent and Innovator Founder routes — eligibility
-                assessment, CV review, and step-by-step guidance from a Tech
-                Nation alumni. No visa guarantees, just structured preparation.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <CTAButton href="/book-consultation">Book free consultation</CTAButton>
-                <CTAButton href="/customers" variant="secondary">
-                  Customer stories
-                </CTAButton>
-              </div>
+        <div className="page-container pb-10 pt-20 md:pb-14 md:pt-28">
+          <div className="max-w-3xl">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
+              UK endorsement preparation
+            </p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-tightest text-text-primary md:text-6xl md:leading-[1.08]">
+              Endorsement preparation,
+              <br />
+              <span className="text-text-secondary">built for clarity</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary md:text-lg">
+              Global Talent and Innovator Founder routes — eligibility
+              assessment, CV review, and step-by-step guidance from a Tech
+              Nation alumni. No visa guarantees, just structured preparation.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <CTAButton href="/book-consultation">Book free consultation</CTAButton>
+              <CTAButton href="/customers" variant="secondary">
+                Customer stories
+              </CTAButton>
             </div>
-            <div className="lg:-mr-8 lg:translate-y-4 xl:-mr-16">
-              <EligibilityCheckerMock />
-            </div>
+          </div>
+        </div>
+
+        {/* Full-width endorsement comparison */}
+        <div className="w-full px-4 pb-16 sm:px-5 md:pb-24">
+          <div className="mx-auto w-full max-w-[1400px]">
+            <EndorsementCompareMock />
           </div>
         </div>
       </section>
 
-      {/* Route finder — asymmetric, text left */}
+      {/* Route finder — resume scanner */}
       <section className="section-band py-24 md:py-32">
         <div className="page-container grid items-center gap-16 lg:grid-cols-[1fr_1.1fr]">
           <div>
@@ -71,26 +74,22 @@ export default function HomePage() {
               <ArrowRight className="size-3.5" />
             </Link>
           </div>
-          <div className="scale-[1.02] lg:origin-right">
-            <EligibilityCheckerMock />
-          </div>
+          <ResumeScannerMock />
         </div>
       </section>
 
-      {/* CV review — full-bleed mock left */}
+      {/* CV builder — form fill → 3-page resume */}
       <section className="py-24 md:py-32">
         <div className="grid lg:grid-cols-2 lg:gap-0">
           <div className="page-container py-0 lg:pr-12 lg:pl-[max(1rem,calc((100vw-1280px)/2+1rem))]">
-            <div className="product-glow overflow-hidden rounded-xl">
-              <CvReviewMock />
-            </div>
+            <CvBuilderMock />
           </div>
           <div className="page-container flex items-center py-16 lg:py-0 lg:pl-12">
             <div>
               <SectionHeader
                 eyebrow="CV review"
                 title="Evidence that endorsers actually expect"
-                description="Your CV and personal statement are scored against endorser rubrics — leadership signals, innovation markers, and UK relevance flagged before you submit."
+                description="Share your career background once — we structure it into a Harvard-style CV scored against endorser rubrics for leadership, innovation, and UK relevance."
               />
               <Link
                 href="/innovator-founder"
@@ -104,7 +103,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Process preview — timeline snippet */}
+      {/* Process preview */}
       <section className="section-elevated py-24 md:py-32">
         <div className="page-container">
           <SectionHeader
@@ -125,7 +124,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Customers — left header, grid */}
+      {/* Customers */}
       <section className="py-24 md:py-32">
         <div className="page-container">
           <div className="mb-12 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
@@ -150,7 +149,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA — left aligned */}
+      {/* CTA */}
       <section className="relative overflow-hidden py-24">
         <div className="glow-orb glow-orb-purple -left-20 top-1/2 size-[400px]" aria-hidden />
         <div className="page-container relative">

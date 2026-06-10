@@ -23,6 +23,454 @@
   .surface-card {
     @apply rounded-xl bg-surface shadow-[0_2px_24px_rgba(0,0,0,0.25)];
   }
+
+  /* A4 preview — true 210×297mm ratio */
+  .a4-page {
+    aspect-ratio: 210 / 297;
+    background: #fff;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.1),
+      0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* CV builder — scale A4 to fill panel */
+  .cv-builder-viewport {
+    container-type: size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    flex: 1;
+    padding: 0.35rem;
+  }
+
+  .cv-builder-paper {
+    container-type: size;
+    position: relative;
+    aspect-ratio: 210 / 297;
+    width: min(100cqw, calc(100cqh * 210 / 297));
+    height: auto;
+    max-height: 100%;
+    flex-shrink: 0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .cv-builder-paper .harvard-a4-dense {
+    font-size: 1.55cqh;
+    line-height: 1.38;
+    padding: 2cqh 2.2cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-name {
+    font-size: 2.45cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-contact {
+    font-size: 1.35cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-section h2 {
+    font-size: 1.55cqh;
+    margin-bottom: 0.35cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-body,
+  .cv-builder-paper .harvard-a4-dense .harvard-bullets li,
+  .cv-builder-paper .harvard-a4-dense .harvard-entry-title,
+  .cv-builder-paper .harvard-a4-dense .harvard-entry-sub {
+    font-size: 1.5cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-entry-date {
+    font-size: 1.45cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-entry {
+    margin-bottom: 0.55cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-section {
+    margin-bottom: 0.65cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-bullets li {
+    margin-bottom: 0.22cqh;
+  }
+
+  .cv-builder-paper .harvard-a4-dense .harvard-resume-header {
+    margin-bottom: 0.65cqh;
+    padding-bottom: 0.45cqh;
+  }
+
+  .harvard-a4 {
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .harvard-a4-inner,
+  .harvard-resume-inner {
+    height: 100%;
+    padding: 0.85rem 0.9rem;
+    overflow: hidden;
+    font-family: "Times New Roman", Times, Georgia, serif;
+    color: #000;
+    font-size: 6.5px;
+    line-height: 1.35;
+  }
+
+  /* CV builder — ~90% A4 page fill */
+  .harvard-a4-dense {
+    font-size: 6.75px;
+    line-height: 1.38;
+    padding: 0.62rem 0.72rem;
+  }
+
+  .harvard-a4-dense.harvard-a4-fill {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 100%;
+    justify-content: flex-start;
+  }
+
+  .harvard-a4-dense .harvard-name {
+    font-size: 10.5px;
+  }
+
+  .harvard-a4-dense .harvard-contact {
+    font-size: 6px;
+  }
+
+  .harvard-a4-dense .harvard-section h2 {
+    font-size: 6.75px;
+    margin-bottom: 0.22rem;
+  }
+
+  .harvard-a4-dense .harvard-body,
+  .harvard-a4-dense .harvard-bullets li,
+  .harvard-a4-dense .harvard-entry-title,
+  .harvard-a4-dense .harvard-entry-sub {
+    font-size: 6.75px;
+  }
+
+  .harvard-a4-dense .harvard-entry-date {
+    font-size: 6.5px;
+  }
+
+  .harvard-a4-dense .harvard-entry {
+    margin-bottom: 0.34rem;
+  }
+
+  .harvard-a4-dense .harvard-section {
+    margin-bottom: 0.42rem;
+  }
+
+  .harvard-a4-dense .harvard-bullets li {
+    margin-bottom: 0.14rem;
+  }
+
+  .harvard-a4-dense .harvard-resume-header {
+    margin-bottom: 0.42rem;
+    padding-bottom: 0.3rem;
+  }
+
+  .harvard-resume-header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid #000;
+  }
+
+  .harvard-name {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin: 0;
+    color: #000;
+  }
+
+  .harvard-contact {
+    font-size: 6px;
+    color: #000;
+    margin: 0.15rem 0 0;
+    line-height: 1.4;
+  }
+
+  .harvard-section {
+    margin-bottom: 0.45rem;
+  }
+
+  .harvard-section h2 {
+    font-size: 6.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid #000;
+    padding-bottom: 0.1rem;
+    margin: 0 0 0.25rem;
+    color: #000;
+  }
+
+  .harvard-body {
+    font-size: 6.5px;
+    line-height: 1.4;
+    margin: 0;
+    color: #000;
+    text-align: justify;
+  }
+
+  .harvard-entry {
+    margin-bottom: 0.35rem;
+  }
+
+  .harvard-entry-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .harvard-entry-title {
+    font-size: 6.5px;
+    font-weight: 700;
+    color: #000;
+  }
+
+  .harvard-entry-date {
+    font-size: 6px;
+    color: #000;
+    white-space: nowrap;
+  }
+
+  .harvard-entry-sub {
+    font-size: 6.5px;
+    font-style: italic;
+    margin: 0.05rem 0 0.15rem;
+    color: #000;
+  }
+
+  .harvard-bullets {
+    margin: 0.1rem 0 0;
+    padding-left: 0.55rem;
+    list-style-type: disc;
+  }
+
+  .harvard-bullets li {
+    font-size: 6.5px;
+    line-height: 1.35;
+    margin-bottom: 0.12rem;
+    color: #000;
+  }
+
+  .harvard-resume {
+    font-size: 5.5px;
+  }
+
+  .harvard-resume .harvard-resume-inner {
+    padding: 0.65rem 0.7rem;
+    font-size: 5.5px;
+  }
+
+  .harvard-resume .harvard-name {
+    font-size: 9px;
+  }
+
+  .harvard-resume .harvard-contact {
+    font-size: 5.5px;
+  }
+
+  .harvard-resume .harvard-section h2 {
+    font-size: 6px;
+  }
+
+  .harvard-resume .harvard-body,
+  .harvard-resume .harvard-bullets li,
+  .harvard-resume .harvard-entry-title,
+  .harvard-resume .harvard-entry-sub {
+    font-size: 5.5px;
+  }
+
+  .harvard-resume .harvard-entry-date {
+    font-size: 5.5px;
+  }
+
+  /* Route finder — mini A4 centred in viewer */
+  .resume-scanner-viewport {
+    container-type: size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    background: linear-gradient(180deg, #2a2b2e 0%, #1e1f22 100%);
+    padding: 0.5rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  /* True A4 fit: width = min(container width, height-derived width at 210:297) */
+  .resume-scanner-paper {
+    container-type: size;
+    position: relative;
+    aspect-ratio: 210 / 297;
+    width: min(100cqw, calc(100cqh * 210 / 297));
+    height: auto;
+    max-height: 100%;
+    flex-shrink: 0;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.12),
+      0 8px 28px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+  }
+
+  .resume-scanner-paper.is-scanning {
+    box-shadow:
+      0 0 0 1px rgba(94, 106, 210, 0.45),
+      0 0 24px rgba(94, 106, 210, 0.2),
+      0 8px 28px rgba(0, 0, 0, 0.4);
+    animation: scanner-paper-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes scanner-paper-pulse {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px rgba(94, 106, 210, 0.35),
+        0 0 16px rgba(94, 106, 210, 0.15),
+        0 8px 28px rgba(0, 0, 0, 0.4);
+    }
+    50% {
+      box-shadow:
+        0 0 0 2px rgba(94, 106, 210, 0.55),
+        0 0 28px rgba(94, 106, 210, 0.28),
+        0 8px 28px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .resume-scanner-scan-overlay {
+    background:
+      linear-gradient(rgba(94, 106, 210, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(94, 106, 210, 0.06) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  .resume-scanner-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: rgba(94, 106, 210, 0.75);
+    border-style: solid;
+  }
+
+  .resume-scanner-corner-tl {
+    top: 6px;
+    left: 6px;
+    border-width: 2px 0 0 2px;
+  }
+
+  .resume-scanner-corner-tr {
+    top: 6px;
+    right: 6px;
+    border-width: 2px 2px 0 0;
+  }
+
+  .resume-scanner-corner-bl {
+    bottom: 6px;
+    left: 6px;
+    border-width: 0 0 2px 2px;
+  }
+
+  .resume-scanner-corner-br {
+    bottom: 6px;
+    right: 6px;
+    border-width: 0 2px 2px 0;
+  }
+
+  .resume-scanner-beam {
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(94, 106, 210, 0.35),
+      rgba(94, 106, 210, 0.95),
+      rgba(94, 106, 210, 0.35),
+      transparent
+    );
+    box-shadow: 0 0 14px rgba(94, 106, 210, 0.65);
+  }
+
+  .harvard-resume-scanner {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  .harvard-resume-scanner .harvard-resume-inner {
+    height: 100%;
+    min-height: 100%;
+    padding: 2.2cqh 2.4cqh;
+    font-size: 1.48cqh;
+    line-height: 1.36;
+    overflow: hidden;
+  }
+
+  .harvard-resume-scanner-fill {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .harvard-resume-scanner .harvard-name {
+    font-size: 2.35cqh;
+    letter-spacing: 0.03em;
+  }
+
+  .harvard-resume-scanner .harvard-contact {
+    font-size: 1.32cqh;
+    line-height: 1.38;
+  }
+
+  .harvard-resume-scanner .harvard-section h2 {
+    font-size: 1.52cqh;
+    margin-bottom: 0.35cqh;
+    padding-bottom: 0.15cqh;
+  }
+
+  .harvard-resume-scanner .harvard-body,
+  .harvard-resume-scanner .harvard-bullets li,
+  .harvard-resume-scanner .harvard-entry-title,
+  .harvard-resume-scanner .harvard-entry-sub,
+  .harvard-resume-scanner .harvard-entry-date {
+    font-size: 1.48cqh;
+  }
+
+  .harvard-resume-scanner .harvard-section {
+    margin-bottom: 0.55cqh;
+  }
+
+  .harvard-resume-scanner .harvard-entry {
+    margin-bottom: 0.42cqh;
+  }
+
+  .harvard-resume-scanner .harvard-bullets li {
+    margin-bottom: 0.18cqh;
+    line-height: 1.34;
+  }
+
+  .harvard-resume-scanner .harvard-resume-header {
+    margin-bottom: 0.55cqh;
+    padding-bottom: 0.4cqh;
+  }
+
+  .harvard-gt-tag {
+    font-size: 5px;
+    font-style: italic;
+    color: #333;
+    margin: 0.1rem 0 0.12rem;
+  }
 }
 
 @layer utilities {
@@ -89,6 +537,146 @@
 
   .scroll-strip::-webkit-scrollbar-thumb:hover {
     background: rgba(94, 106, 210, 0.9);
+  }
+
+  /* Vertical scroll — same accent style as consultation date strip */
+  .scroll-panel {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(94, 106, 210, 0.55) rgba(255, 255, 255, 0.04);
+  }
+
+  .scroll-panel::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .scroll-panel::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 999px;
+  }
+
+  .scroll-panel::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(94, 106, 210, 0.35),
+      rgba(94, 106, 210, 0.75)
+    );
+    border-radius: 999px;
+  }
+
+  .scroll-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(94, 106, 210, 0.9);
+  }
+
+  @keyframes skeleton-pulse {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.65;
+    }
+  }
+
+  .skeleton-line {
+    animation: skeleton-pulse 1.6s ease-in-out infinite;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  @keyframes scan-line {
+    0% {
+      top: 0%;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes scan-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(94, 106, 210, 0.35);
+    }
+    50% {
+      box-shadow: 0 0 24px 4px rgba(94, 106, 210, 0.25);
+    }
+  }
+
+  @keyframes fade-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes progress-indeterminate {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(250%);
+    }
+  }
+
+  @keyframes cursor-blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes page-flip-in {
+    from {
+      opacity: 0;
+      transform: translateX(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  .animate-scan-line {
+    animation: scan-line 2.8s ease-in-out infinite;
+  }
+
+  .animate-scan-pulse {
+    animation: scan-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-fade-slide-up {
+    animation: fade-slide-up 0.45s ease-out forwards;
+  }
+
+  .animate-progress-bar {
+    animation: progress-indeterminate 1.4s ease-in-out infinite;
+  }
+
+  .animate-cursor-blink {
+    animation: cursor-blink 1s step-end infinite;
+  }
+
+  .animate-page-in {
+    animation: page-flip-in 0.5s ease-out forwards;
   }
 }
 
