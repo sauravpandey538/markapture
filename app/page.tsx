@@ -1,101 +1,168 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { CTAButton } from "@/components/ui/CTAButton";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { ProcessTimeline } from "@/components/ui/ProcessTimeline";
+import { EligibilityCheckerMock } from "@/components/product/EligibilityCheckerMock";
+import { CvReviewMock } from "@/components/product/CvReviewMock";
+import { CustomerCard } from "@/components/customers/CustomerCard";
+import { CUSTOMER_STORIES } from "@/lib/constants";
+import { GLOBAL_TALENT_TIMELINE } from "@/lib/timelines";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "Markapture | UK Endorsement Preparation",
+  description:
+    "Structured guidance for Global Talent and Innovator Founder visa endorsements. Route finder, CV review, and expert consultation.",
+};
+
+const featured = CUSTOMER_STORIES.filter((s) => s.featured);
+
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <>
+      {/* Hero — left-aligned, product bleeds wide */}
+      <section className="relative overflow-hidden">
+        <div className="glow-orb glow-orb-purple -right-40 top-0 size-[600px]" aria-hidden />
+        <div className="page-container pb-16 pt-20 md:pb-24 md:pt-28">
+          <div className="grid items-end gap-12 lg:grid-cols-2 lg:gap-16">
+            <div className="max-w-2xl">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                UK endorsement preparation
+              </p>
+              <h1 className="mt-4 text-4xl font-semibold tracking-tightest text-text-primary md:text-6xl md:leading-[1.08]">
+                Endorsement preparation,
+                <br />
+                <span className="text-text-secondary">built for clarity</span>
+              </h1>
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary md:text-lg">
+                Global Talent and Innovator Founder routes — eligibility
+                assessment, CV review, and step-by-step guidance from a Tech
+                Nation alumni. No visa guarantees, just structured preparation.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <CTAButton href="/book-consultation">Book free consultation</CTAButton>
+                <CTAButton href="/customers" variant="secondary">
+                  Customer stories
+                </CTAButton>
+              </div>
+            </div>
+            <div className="lg:-mr-8 lg:translate-y-4 xl:-mr-16">
+              <EligibilityCheckerMock />
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      </section>
+
+      {/* Route finder — asymmetric, text left */}
+      <section className="section-band py-24 md:py-32">
+        <div className="page-container grid items-center gap-16 lg:grid-cols-[1fr_1.1fr]">
+          <div>
+            <SectionHeader
+              eyebrow="Route finder"
+              title="Know your route before you file"
+              description="Global Talent and Innovator Founder require different evidence. Our workflow scores both routes and surfaces gaps before you invest months in the wrong path."
+            />
+            <Link
+              href="/global-talent"
+              className="mt-8 inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-linear-accent"
+            >
+              Explore Global Talent
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+          <div className="scale-[1.02] lg:origin-right">
+            <EligibilityCheckerMock />
+          </div>
+        </div>
+      </section>
+
+      {/* CV review — full-bleed mock left */}
+      <section className="py-24 md:py-32">
+        <div className="grid lg:grid-cols-2 lg:gap-0">
+          <div className="page-container py-0 lg:pr-12 lg:pl-[max(1rem,calc((100vw-1280px)/2+1rem))]">
+            <div className="product-glow overflow-hidden rounded-xl">
+              <CvReviewMock />
+            </div>
+          </div>
+          <div className="page-container flex items-center py-16 lg:py-0 lg:pl-12">
+            <div>
+              <SectionHeader
+                eyebrow="CV review"
+                title="Evidence that endorsers actually expect"
+                description="Your CV and personal statement are scored against endorser rubrics — leadership signals, innovation markers, and UK relevance flagged before you submit."
+              />
+              <Link
+                href="/innovator-founder"
+                className="mt-8 inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-linear-accent"
+              >
+                Explore Innovator Founder
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Process preview — timeline snippet */}
+      <section className="section-elevated py-24 md:py-32">
+        <div className="page-container">
+          <SectionHeader
+            eyebrow="The process"
+            title="From first call to endorsement-ready"
+            description="Every step has a deliverable. You always know what's next and what you're working toward."
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <div className="mt-16">
+            <ProcessTimeline steps={GLOBAL_TALENT_TIMELINE.slice(0, 3)} />
+          </div>
+          <Link
+            href="/global-talent"
+            className="mt-8 inline-flex items-center gap-1.5 text-sm text-linear-accent hover:underline"
+          >
+            See full Global Talent timeline
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* Customers — left header, grid */}
+      <section className="py-24 md:py-32">
+        <div className="page-container">
+          <div className="mb-12 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+            <SectionHeader
+              eyebrow="Customers"
+              title="Stories from professionals like you"
+              description="Real preparation journeys — outcomes vary and visa approval is never guaranteed."
+            />
+            <Link
+              href="/customers"
+              className="inline-flex shrink-0 items-center gap-1 text-sm text-text-secondary hover:text-linear-accent"
+            >
+              View all stories
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {featured.map((story) => (
+              <CustomerCard key={story.slug} {...story} featured />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA — left aligned */}
+      <section className="relative overflow-hidden py-24">
+        <div className="glow-orb glow-orb-purple -left-20 top-1/2 size-[400px]" aria-hidden />
+        <div className="page-container relative">
+          <SectionHeader
+            title="Built for your endorsement. Available today."
+            description="Book a free 30-minute consultation with Nabila Farzin, Tech Nation alumni. Walk away with a recommended route and a clear next step."
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <div className="mt-8">
+            <CTAButton href="/book-consultation">Book free consultation</CTAButton>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

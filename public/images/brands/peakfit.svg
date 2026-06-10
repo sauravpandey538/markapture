@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="40" viewBox="0 0 120 40" fill="none">
+  <path d="M8 28 L20 12 L32 28 Z" fill="#EF4444"/>
+  <rect x="16" y="22" width="8" height="6" fill="#fff"/>
+  <text x="40" y="25" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#EF4444">PeakFit</text>
+</svg>
