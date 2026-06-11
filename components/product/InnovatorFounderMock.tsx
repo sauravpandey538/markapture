@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
   CheckCircle2,
@@ -13,8 +14,10 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { ProductFrame } from "@/components/product/ProductFrame";
-import { INNOVATOR_SCENARIOS } from "@/lib/product-demos";
+import { useDemoInView } from "@/hooks/useDemoInView";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
+import { INNOVATOR_SCENARIOS } from "@/lib/product-demos";
+import { fadeIn, fadeUp, scaleIn, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 type Phase = "scan" | "results";
@@ -26,6 +29,7 @@ const STAGE_H = "h-[620px]";
 
 /** Innovator Founder — distinct before (scan) vs after (results) demo */
 export function InnovatorFounderMock() {
+  const { ref, isInView } = useDemoInView();
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>("scan");
   const [activeSection, setActiveSection] = useState(0);
@@ -37,11 +41,20 @@ export function InnovatorFounderMock() {
   const animatedReadiness = useAnimatedNumber(
     scenario.readiness,
     1100,
-    phase === "results"
+    phase === "results" && isInView
   );
 
+  // Reset demo when scrolled out of viewport
   useEffect(() => {
-    if (phase !== "scan") return;
+    if (isInView) return;
+    setPhase("scan");
+    setScenarioIndex(0);
+    setActiveSection(0);
+    setScanProgress(0);
+  }, [isInView]);
+
+  useEffect(() => {
+    if (!isInView || phase !== "scan") return;
 
     setActiveSection(0);
     setScanProgress(0);
@@ -68,10 +81,10 @@ export function InnovatorFounderMock() {
       sectionTimers.forEach(clearTimeout);
       clearTimeout(done);
     };
-  }, [phase, scenarioIndex, scenario.sections.length]);
+  }, [isInView, phase, scenarioIndex, scenario.sections.length]);
 
   useEffect(() => {
-    if (phase !== "results") return;
+    if (!isInView || phase !== "results") return;
 
     const next = setTimeout(() => {
       setScenarioIndex((i) => (i + 1) % INNOVATOR_SCENARIOS.length);
@@ -79,19 +92,25 @@ export function InnovatorFounderMock() {
     }, RESULTS_MS);
 
     return () => clearTimeout(next);
-  }, [phase, scenarioIndex]);
+  }, [isInView, phase, scenarioIndex]);
 
   return (
-    <ProductFrame title="markapture — innovator founder">
-      <div
-        className={cn(
-          "flex flex-col overflow-hidden p-4 transition-colors duration-500 md:p-5",
-          STAGE_H,
-          phase === "scan"
-            ? "bg-gradient-to-b from-linear-accent/[0.06] to-transparent"
-            : "bg-gradient-to-b from-emerald-500/[0.05] to-transparent"
-        )}
-      >
+    <ProductFrame ref={ref} title="markapture — innovator founder">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={phase}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.35 }}
+          className={cn(
+            "flex flex-col overflow-hidden p-4 md:p-5",
+            STAGE_H,
+            phase === "scan"
+              ? "bg-gradient-to-b from-linear-accent/[0.06] to-transparent"
+              : "bg-gradient-to-b from-emerald-500/[0.05] to-transparent"
+          )}
+        >
         {/* Phase banner + venture — single compact header row */}
         <div
           className={cn(
@@ -160,8 +179,13 @@ export function InnovatorFounderMock() {
           </div>
         </div>
 
-        {/* 2×2 grid — fits all 4 sections without scroll */}
-        <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-2">
+        {/* 2×2 grid — stagger in when results appear */}
+        <motion.div
+          className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-2"
+          variants={staggerContainer}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+        >
           {phase === "scan"
             ? scenario.sections.map((section, i) => (
                 <ScanSectionCard
@@ -178,54 +202,73 @@ export function InnovatorFounderMock() {
                   key={`${scenarioIndex}-result-${section.title}`}
                   section={section}
                   index={i}
+                  isInView={isInView}
                 />
               ))}
-        </div>
+        </motion.div>
 
-        {/* Footer verdict — compact, always visible */}
+        {/* Footer verdict */}
         <div className="mt-3 shrink-0">
-          {phase === "scan" ? (
-            <div className="flex items-center gap-3 rounded-lg border border-dashed border-white/[0.08] bg-surface-elevated/50 px-3 py-2.5">
-              <Lock className="size-3 shrink-0 text-text-muted" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] text-text-muted">
-                  Endorser verdict locked until scan completes
-                </p>
-                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/[0.06]">
-                  <div
-                    className="h-full rounded-full bg-linear-accent transition-[width] duration-150 ease-linear"
-                    style={{ width: `${scanProgress}%` }}
-                  />
-                </div>
-              </div>
-              <span className="shrink-0 text-[9px] tabular-nums text-text-muted">
-                {Math.round(scanProgress)}%
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-start gap-2 rounded-lg border border-emerald-500/25 bg-emerald-500/[0.08] px-3 py-2.5">
-              <TrendingUp className="mt-0.5 size-3.5 shrink-0 text-emerald-400" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[9px] font-semibold uppercase tracking-wider text-emerald-400">
-                  Endorser verdict
-                </p>
-                <p className="mt-0.5 text-[11px] leading-snug text-text-secondary">
-                  {scenario.endorserVerdict}
-                </p>
-                {gapCount > 0 && (
-                  <p className="mt-1 text-[9px] text-amber-400/90">
-                    Priority gaps:{" "}
-                    {scenario.sections
-                      .filter((s) => s.status === "warn")
-                      .map((s) => s.title)
-                      .join(" · ")}
+          <AnimatePresence mode="wait">
+            {phase === "scan" ? (
+              <motion.div
+                key="scan-footer"
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                className="flex items-center gap-3 rounded-lg border border-dashed border-white/[0.08] bg-surface-elevated/50 px-3 py-2.5"
+              >
+                <Lock className="size-3 shrink-0 text-text-muted" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] text-text-muted">
+                    Endorser verdict locked until scan completes
                   </p>
-                )}
-              </div>
-            </div>
-          )}
+                  <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+                    <motion.div
+                      className="h-full rounded-full bg-linear-accent"
+                      animate={{ width: `${scanProgress}%` }}
+                      transition={{ duration: 0.15, ease: "linear" }}
+                    />
+                  </div>
+                </div>
+                <span className="shrink-0 text-[9px] tabular-nums text-text-muted">
+                  {Math.round(scanProgress)}%
+                </span>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="results-footer"
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                className="flex items-start gap-2 rounded-lg border border-emerald-500/25 bg-emerald-500/[0.08] px-3 py-2.5"
+              >
+                <TrendingUp className="mt-0.5 size-3.5 shrink-0 text-emerald-400" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-emerald-400">
+                    Endorser verdict
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-snug text-text-secondary">
+                    {scenario.endorserVerdict}
+                  </p>
+                  {gapCount > 0 && (
+                    <p className="mt-1 text-[9px] text-amber-400/90">
+                      Priority gaps:{" "}
+                      {scenario.sections
+                        .filter((s) => s.status === "warn")
+                        .map((s) => s.title)
+                        .join(" · ")}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </ProductFrame>
   );
 }
@@ -272,18 +315,27 @@ function ScanSectionCard({
   const isPending = !isActive && !isMapped;
 
   return (
-    <div
+    <motion.div
+      layout
+      variants={scaleIn}
       className={cn(
-        "relative flex min-h-0 flex-col overflow-hidden rounded-lg border p-2.5 transition-all duration-300",
+        "relative flex min-h-0 flex-col overflow-hidden rounded-lg border p-2.5",
         isActive && "border-linear-accent/40 bg-linear-accent-muted shadow-[0_0_16px_rgba(94,106,210,0.1)]",
         isMapped && "border-white/[0.06] bg-surface-elevated/80",
         isPending && "border-dashed border-white/[0.08] bg-surface-elevated/40"
       )}
+      animate={
+        isActive
+          ? { scale: 1.01, borderColor: "rgba(94,106,210,0.4)" }
+          : { scale: 1, borderColor: undefined }
+      }
+      transition={{ duration: 0.3 }}
     >
       {isActive && (
-        <div
-          className="pointer-events-none absolute inset-x-0 h-px bg-linear-accent/80"
-          style={{ top: `${(scanProgress + index * 12) % 80}%` }}
+        <motion.div
+          className="pointer-events-none absolute inset-x-0 h-px bg-linear-accent/80 shadow-[0_0_10px_rgba(94,106,210,0.5)]"
+          animate={{ top: `${(scanProgress + index * 12) % 80}%` }}
+          transition={{ duration: 0.12, ease: "linear" }}
         />
       )}
 
@@ -335,37 +387,45 @@ function ScanSectionCard({
 
       <div className="mt-auto pt-1.5">
         <div className="h-0.5 overflow-hidden rounded-full bg-white/[0.06]">
-          <div
+          <motion.div
             className={cn(
-              "h-full rounded-full transition-all duration-300",
+              "h-full rounded-full",
               isActive ? "bg-linear-accent/80" : isMapped ? "bg-linear-accent/30" : "bg-transparent"
             )}
-            style={{
+            animate={{
               width: isActive
                 ? `${40 + (scanProgress % 35)}%`
                 : isMapped
                   ? "100%"
                   : "0%",
             }}
+            transition={{ duration: 0.25 }}
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 function ResultsSectionCard({
   section,
   index,
+  isInView,
 }: {
   section: (typeof INNOVATOR_SCENARIOS)[number]["sections"][number];
   index: number;
+  isInView: boolean;
 }) {
-  const animatedScore = useAnimatedNumber(section.score, 700 + index * 100, true);
+  const animatedScore = useAnimatedNumber(
+    section.score,
+    700 + index * 100,
+    isInView
+  );
   const isPass = section.status === "pass";
 
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
       className={cn(
         "flex min-h-0 flex-col rounded-lg border p-2.5",
         isPass
@@ -422,14 +482,16 @@ function ResultsSectionCard({
       )}
 
       <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/[0.06]">
-        <div
+        <motion.div
           className={cn(
-            "h-full rounded-full transition-all duration-700",
+            "h-full rounded-full",
             isPass ? "bg-linear-accent" : "bg-amber-400"
           )}
-          style={{ width: `${animatedScore}%` }}
+          initial={{ width: 0 }}
+          animate={{ width: `${animatedScore}%` }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: index * 0.08 }}
         />
       </div>
-    </div>
+    </motion.div>
   );
 }

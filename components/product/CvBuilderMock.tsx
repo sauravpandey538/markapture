@@ -1,9 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Check, FileText, Loader2, Wand2 } from "lucide-react";
 import { ProductFrame } from "@/components/product/ProductFrame";
 import { Button } from "@/components/ui/button";
+import { useDemoInView } from "@/hooks/useDemoInView";
+import { fadeIn } from "@/lib/motion";
 import {
   CV_FORM_FIELDS,
   CV_FORM_SECTIONS,
@@ -22,6 +25,7 @@ const STAGE_H = "h-[580px]";
 const fieldByKey = Object.fromEntries(CV_FORM_FIELDS.map((f) => [f.key, f]));
 
 export function CvBuilderMock() {
+  const { ref, isInView } = useDemoInView();
   const [phase, setPhase] = useState<Phase>("form");
   const [sectionIndex, setSectionIndex] = useState(0);
   const [fieldIndex, setFieldIndex] = useState(0);
@@ -48,9 +52,21 @@ export function CvBuilderMock() {
     setSectionReady(false);
   }, [isLastSection]);
 
+  useEffect(() => {
+    if (isInView) return;
+    setPhase("form");
+    setSectionIndex(0);
+    setFieldIndex(0);
+    setCharIndex(0);
+    setSectionReady(false);
+    setFilledFields({});
+    setResumePage(0);
+    setProcessProgress(0);
+  }, [isInView]);
+
   // Type fields within the active section only
   useEffect(() => {
-    if (phase !== "form" || sectionReady) return;
+    if (!isInView || phase !== "form" || sectionReady) return;
 
     const fullText = CV_FORM_VALUES[currentFieldKey];
 
@@ -83,18 +99,19 @@ export function CvBuilderMock() {
     charIndex,
     currentFieldKey,
     sectionFieldKeys.length,
+    isInView,
   ]);
 
   // Demo: auto-advance after section completes (Next / Submit visible first)
   useEffect(() => {
-    if (phase !== "form" || !sectionReady) return;
+    if (!isInView || phase !== "form" || !sectionReady) return;
 
     const id = setTimeout(advanceSection, SECTION_ADVANCE_MS);
     return () => clearTimeout(id);
-  }, [phase, sectionReady, advanceSection]);
+  }, [isInView, phase, sectionReady, advanceSection]);
 
   useEffect(() => {
-    if (phase !== "processing") return;
+    if (!isInView || phase !== "processing") return;
 
     const start = Date.now();
     const tick = setInterval(() => {
@@ -111,10 +128,10 @@ export function CvBuilderMock() {
       clearInterval(tick);
       clearTimeout(done);
     };
-  }, [phase]);
+  }, [isInView, phase]);
 
   useEffect(() => {
-    if (phase !== "resume") return;
+    if (!isInView || phase !== "resume") return;
 
     const id = setTimeout(() => {
       if (resumePage < 2) {
@@ -131,7 +148,7 @@ export function CvBuilderMock() {
     }, PAGE_MS);
 
     return () => clearTimeout(id);
-  }, [phase, resumePage]);
+  }, [isInView, phase, resumePage]);
 
   const sectionProgress =
     sectionFieldKeys.length > 0
@@ -139,10 +156,18 @@ export function CvBuilderMock() {
       : 0;
 
   return (
-    <ProductFrame title="markapture — cv builder">
+    <ProductFrame ref={ref} title="markapture — cv builder">
       <div className={STAGE_H}>
+        <AnimatePresence mode="wait">
         {phase === "form" && (
-          <div className="flex h-full min-h-0 flex-col p-4">
+          <motion.div
+            key="form"
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="flex h-full min-h-0 flex-col p-4"
+          >
             <div className="mb-3 shrink-0">
               <p className="text-[10px] uppercase tracking-wider text-text-muted">
                 CV intake
@@ -251,11 +276,18 @@ export function CvBuilderMock() {
                 </Button>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {phase === "processing" && (
-          <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+          <motion.div
+            key="processing"
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="flex h-full flex-col items-center justify-center p-8 text-center"
+          >
             <Wand2 className="size-9 text-linear-accent" />
             <p className="mt-4 text-sm font-medium text-text-primary">
               Formatting Harvard-style CV…
@@ -270,11 +302,18 @@ export function CvBuilderMock() {
               />
             </div>
             <Loader2 className="mt-4 size-4 animate-spin text-linear-accent/50" />
-          </div>
+          </motion.div>
         )}
 
         {phase === "resume" && (
-          <div className="flex h-full min-h-0 flex-col p-3">
+          <motion.div
+            key={`resume-${resumePage}`}
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="flex h-full min-h-0 flex-col p-3"
+          >
             <div className="mb-2 flex shrink-0 items-center justify-between px-1">
               <div className="flex items-center gap-1.5">
                 <FileText className="size-3 text-text-muted" />
@@ -298,8 +337,9 @@ export function CvBuilderMock() {
                 <HarvardResumePage page={resumePage} />
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </ProductFrame>
   );

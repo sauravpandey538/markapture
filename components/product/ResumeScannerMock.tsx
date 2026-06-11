@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
   ArrowRight,
@@ -10,7 +11,9 @@ import {
 } from "lucide-react";
 import { ProductFrame } from "@/components/product/ProductFrame";
 import { ResumeDocument } from "@/components/product/ResumeDocument";
+import { useDemoInView } from "@/hooks/useDemoInView";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
+import { fadeIn } from "@/lib/motion";
 import { SCAN_PROFILES } from "@/lib/product-demos";
 import { cn } from "@/lib/utils";
 
@@ -22,15 +25,29 @@ const RESULTS_MS = 6500;
 const PANEL_H = "h-[700px]";
 
 export function ResumeScannerMock({ title = "markapture — route finder" }: { title?: string }) {
+  const { ref, isInView } = useDemoInView();
   const [profileIndex, setProfileIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>("scan");
   const [scanProgress, setScanProgress] = useState(0);
 
   const profile = SCAN_PROFILES[profileIndex];
-  const animatedScore = useAnimatedNumber(profile.score, 900, phase === "results");
+  const animatedScore = useAnimatedNumber(
+    profile.score,
+    900,
+    phase === "results" && isInView
+  );
 
   useEffect(() => {
-    if (phase !== "scan") return;
+    if (!isInView) {
+      setPhase("scan");
+      setProfileIndex(0);
+      setScanProgress(0);
+      return;
+    }
+  }, [isInView]);
+
+  useEffect(() => {
+    if (!isInView || phase !== "scan") return;
 
     const start = Date.now();
     const tick = setInterval(() => {
@@ -46,10 +63,10 @@ export function ResumeScannerMock({ title = "markapture — route finder" }: { t
       clearInterval(tick);
       clearTimeout(next);
     };
-  }, [phase, profileIndex]);
+  }, [isInView, phase, profileIndex]);
 
   useEffect(() => {
-    if (phase !== "results") return;
+    if (!isInView || phase !== "results") return;
 
     const next = setTimeout(() => {
       setProfileIndex((i) => (i + 1) % SCAN_PROFILES.length);
@@ -58,10 +75,10 @@ export function ResumeScannerMock({ title = "markapture — route finder" }: { t
     }, RESULTS_MS);
 
     return () => clearTimeout(next);
-  }, [phase, profileIndex]);
+  }, [isInView, phase, profileIndex]);
 
   return (
-    <ProductFrame title={title}>
+    <ProductFrame ref={ref} title={title}>
       <div className={cn("grid md:grid-cols-[1.2fr_0.8fr]", PANEL_H)}>
         <div className={cn("flex flex-col border-b border-white/[0.06] p-3 md:border-b-0 md:border-r", PANEL_H)}>
           <div className="mb-2 flex shrink-0 items-center justify-between gap-2">
@@ -91,13 +108,15 @@ export function ResumeScannerMock({ title = "markapture — route finder" }: { t
                   <span className="resume-scanner-corner resume-scanner-corner-tr" />
                   <span className="resume-scanner-corner resume-scanner-corner-bl" />
                   <span className="resume-scanner-corner resume-scanner-corner-br" />
-                  <div
+                  <motion.div
                     className="resume-scanner-beam absolute inset-x-0"
-                    style={{ top: `${scanProgress}%` }}
+                    animate={{ top: `${scanProgress}%` }}
+                    transition={{ duration: 0.12, ease: "linear" }}
                   />
-                  <div
+                  <motion.div
                     className="absolute inset-x-0 h-8 bg-gradient-to-b from-linear-accent/20 to-transparent"
-                    style={{ top: `${Math.max(scanProgress - 4, 0)}%` }}
+                    animate={{ top: `${Math.max(scanProgress - 4, 0)}%` }}
+                    transition={{ duration: 0.12, ease: "linear" }}
                   />
                 </div>
               )}
@@ -122,11 +141,29 @@ export function ResumeScannerMock({ title = "markapture — route finder" }: { t
 
         <div className={cn("flex min-h-0 flex-col p-4", PANEL_H)}>
           <div className="scroll-panel min-h-0 flex-1 pr-1">
-            {phase === "scan" ? (
-              <ScanningPanel progress={scanProgress} profile={profile} />
-            ) : (
-              <ResultsContent profile={profile} score={animatedScore} />
-            )}
+            <AnimatePresence mode="wait">
+              {phase === "scan" ? (
+                <motion.div
+                  key="scan-panel"
+                  variants={fadeIn}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                >
+                  <ScanningPanel progress={scanProgress} profile={profile} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="results-panel"
+                  variants={fadeIn}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                >
+                  <ResultsContent profile={profile} score={animatedScore} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

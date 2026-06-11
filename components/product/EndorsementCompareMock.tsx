@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -10,7 +11,9 @@ import {
   XCircle,
 } from "lucide-react";
 import { ProductFrame } from "@/components/product/ProductFrame";
+import { useDemoInView } from "@/hooks/useDemoInView";
 import { WITHOUT_PACK, WITH_PACK } from "@/lib/product-demos";
+import { fadeUp } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const WITHOUT_ITEMS = [
@@ -29,28 +32,43 @@ const WITH_ITEMS = [
   "Statement structured for endorser review",
 ];
 
-/** Full-width hero demo — endorsement without vs with Markapture */
+const WITHOUT_MS = 7000;
+
+/** Hero demo — Without for 7s, then locks on With so users can read */
 export function EndorsementCompareMock() {
+  const { ref, isInView } = useDemoInView(0.3);
   const [activeSide, setActiveSide] = useState<"without" | "with">("without");
-  const [tick, setTick] = useState(0);
+  const [withRevealed, setWithRevealed] = useState(false);
+  const isLockedOnWith = activeSide === "with";
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setActiveSide((s) => (s === "without" ? "with" : "without"));
-      setTick((t) => t + 1);
-    }, 5000);
-    return () => clearInterval(id);
-  }, []);
+    if (!isInView) {
+      setActiveSide("without");
+      setWithRevealed(false);
+      return;
+    }
+
+    const id = setTimeout(() => {
+      setActiveSide("with");
+      setWithRevealed(true);
+    }, WITHOUT_MS);
+    return () => clearTimeout(id);
+  }, [isInView]);
 
   return (
-    <ProductFrame title="markapture — endorsement comparison" className="w-full">
+    <ProductFrame ref={ref} title="markapture — endorsement comparison" className="w-full">
       <div className="grid md:grid-cols-2">
         {/* Without */}
-        <div
-          className={cn(
-            "border-b border-white/[0.06] p-5 transition-all duration-700 md:border-b-0 md:border-r",
-            activeSide === "without" ? "bg-red-500/[0.04] opacity-100" : "opacity-45"
-          )}
+        <motion.div
+          animate={{
+            opacity: activeSide === "without" ? 1 : 0.45,
+            backgroundColor:
+              activeSide === "without"
+                ? "rgba(239, 68, 68, 0.04)"
+                : "rgba(0, 0, 0, 0)",
+          }}
+          transition={{ duration: 0.5 }}
+          className="border-b border-white/[0.06] p-5 md:border-b-0 md:border-r"
         >
           <Header
             icon={<FileWarning className="size-4 text-amber-400" />}
@@ -59,7 +77,11 @@ export function EndorsementCompareMock() {
             badgeClass="bg-amber-500/15 text-amber-400"
           />
 
-          <PackList docs={WITHOUT_PACK} variant="without" active={activeSide === "without"} />
+          <PackList
+            docs={WITHOUT_PACK}
+            variant="without"
+            animateIn={activeSide === "without"}
+          />
 
           <p className="mb-3 mt-4 text-[10px] uppercase tracking-wider text-text-muted">
             What endorsers see
@@ -75,17 +97,26 @@ export function EndorsementCompareMock() {
             </p>
           </div>
 
-          <Checklist items={WITHOUT_ITEMS} variant="without" active={activeSide === "without"} />
+          <Checklist
+            items={WITHOUT_ITEMS}
+            variant="without"
+            animateIn={activeSide === "without"}
+          />
 
           <ScoreBar score={38} variant="without" />
-        </div>
+        </motion.div>
 
         {/* With */}
-        <div
-          className={cn(
-            "p-5 transition-all duration-700",
-            activeSide === "with" ? "bg-linear-accent/[0.06] opacity-100" : "opacity-45"
-          )}
+        <motion.div
+          animate={{
+            opacity: activeSide === "with" ? 1 : 0.45,
+            backgroundColor:
+              activeSide === "with"
+                ? "rgba(94, 106, 210, 0.06)"
+                : "rgba(0, 0, 0, 0)",
+          }}
+          transition={{ duration: 0.5 }}
+          className="p-5"
         >
           <Header
             icon={<Sparkles className="size-4 text-linear-accent" />}
@@ -94,7 +125,12 @@ export function EndorsementCompareMock() {
             badgeClass="bg-linear-accent-muted text-linear-accent"
           />
 
-          <PackList docs={WITH_PACK} variant="with" active={activeSide === "with"} />
+          <PackList
+            key={withRevealed ? "with-pack-in" : "with-pack-wait"}
+            docs={WITH_PACK}
+            variant="with"
+            animateIn={withRevealed}
+          />
 
           <p className="mb-3 mt-4 text-[10px] uppercase tracking-wider text-text-muted">
             What endorsers see
@@ -110,22 +146,30 @@ export function EndorsementCompareMock() {
             </p>
           </div>
 
-          <Checklist items={WITH_ITEMS} variant="with" active={activeSide === "with"} />
+          <Checklist
+            key={withRevealed ? "with-list-in" : "with-list-wait"}
+            items={WITH_ITEMS}
+            variant="with"
+            animateIn={withRevealed}
+          />
 
           <ScoreBar score={87} variant="with" />
-        </div>
+        </motion.div>
       </div>
 
-      <div className="flex justify-center gap-2 border-t border-white/[0.06] py-3">
+      <div className="flex items-center justify-center gap-2 border-t border-white/[0.06] py-3">
         {(["without", "with"] as const).map((side) => (
           <span
-            key={`${side}-${tick}`}
+            key={side}
             className={cn(
               "h-1 rounded-full transition-all duration-500",
               activeSide === side ? "w-8 bg-linear-accent" : "w-2 bg-white/10"
             )}
           />
         ))}
+        {isLockedOnWith && (
+          <span className="ml-2 text-[9px] text-text-muted">With Markapture</span>
+        )}
       </div>
     </ProductFrame>
   );
@@ -156,11 +200,11 @@ function Header({
 function PackList({
   docs,
   variant,
-  active,
+  animateIn,
 }: {
   docs: typeof WITHOUT_PACK;
   variant: "without" | "with";
-  active: boolean;
+  animateIn: boolean;
 }) {
   return (
     <div className="space-y-2">
@@ -168,13 +212,13 @@ function PackList({
         Application documents
       </p>
       {docs.map((doc, i) => (
-        <div
+        <motion.div
           key={doc.title}
-          className={cn(
-            "flex items-start gap-2.5 rounded-lg bg-surface-elevated px-3 py-2.5 transition-all duration-500",
-            active && "animate-fade-slide-up"
-          )}
-          style={{ animationDelay: `${i * 60}ms` }}
+          variants={fadeUp}
+          initial={animateIn ? "hidden" : false}
+          animate="visible"
+          transition={{ delay: animateIn ? i * 0.06 : 0, duration: 0.45 }}
+          className="flex items-start gap-2.5 rounded-lg bg-surface-elevated px-3 py-2.5"
         >
           <FileText className="mt-0.5 size-3.5 shrink-0 text-text-muted" />
           <div className="min-w-0 flex-1">
@@ -196,7 +240,7 @@ function PackList({
               {doc.detail}
             </p>
           </div>
-        </div>
+        </motion.div>
       ))}
     </div>
   );
@@ -210,11 +254,11 @@ function StatusIcon({ status }: { status: string }) {
 function Checklist({
   items,
   variant,
-  active,
+  animateIn,
 }: {
   items: string[];
   variant: "without" | "with";
-  active: boolean;
+  animateIn: boolean;
 }) {
   const Icon = variant === "with" ? CheckCircle2 : XCircle;
   const iconClass = variant === "with" ? "text-linear-accent" : "text-amber-400";
@@ -222,17 +266,17 @@ function Checklist({
   return (
     <ul className="mt-4 space-y-2">
       {items.map((item, i) => (
-        <li
+        <motion.li
           key={item}
-          className={cn(
-            "flex items-start gap-2 text-[11px] text-text-secondary",
-            active && "animate-fade-slide-up"
-          )}
-          style={{ animationDelay: `${i * 80}ms` }}
+          variants={fadeUp}
+          initial={animateIn ? "hidden" : false}
+          animate="visible"
+          transition={{ delay: animateIn ? i * 0.08 : 0, duration: 0.45 }}
+          className="flex items-start gap-2 text-[11px] text-text-secondary"
         >
           <Icon className={cn("mt-0.5 size-3 shrink-0", iconClass)} />
           {item}
-        </li>
+        </motion.li>
       ))}
     </ul>
   );
