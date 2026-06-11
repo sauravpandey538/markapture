@@ -1,48 +1,94 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  AlertCircle,
-  ArrowRight,
   CheckCircle2,
   Loader2,
   ScanLine,
+  Upload,
 } from "lucide-react";
+import { AnalysisResults } from "@/components/assessment/AnalysisResults";
+import { TimelineLoader } from "@/components/assessment/TimelineLoader";
 import { ProductFrame } from "@/components/product/ProductFrame";
 import { ResumeDocument } from "@/components/product/ResumeDocument";
 import { useDemoInView } from "@/hooks/useDemoInView";
-import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
-import { fadeIn } from "@/lib/motion";
-import { SCAN_PROFILES } from "@/lib/product-demos";
+import {
+  SCAN_PROFILES,
+  scanProfileToAssessmentResult,
+} from "@/lib/product-demos";
 import { cn } from "@/lib/utils";
 
-type Phase = "scan" | "results";
+type Phase = "scan" | "analyzing" | "results";
 
-const SCAN_MS = 3000;
-const RESULTS_MS = 6500;
-/** Tall enough to show full resume + results without internal scroll */
-const PANEL_H = "h-[700px]";
+/** Single fixed height for every phase — no layout jump */
+const FRAME_HEIGHT_PX = 720;
 
-export function ResumeScannerMock({ title = "markapture — route finder" }: { title?: string }) {
+const SCAN_MS = 3200;
+const DEMO_STEP_MS = 1100;
+const RESULTS_MS = 10000;
+
+/** Same steps as live AnalysisLoading — trimmed for demo timing */
+const DEMO_LOADER_STEPS = [
+  {
+    id: "merge",
+    title: "Combining CV + your answers",
+    description:
+      "Merging resume data with your targeted responses — no duplicate inputs.",
+    detail: "Stage 1 endorsement inputs: CV and recommendation letters.",
+  },
+  {
+    id: "criteria",
+    title: "Scoring against endorser criteria",
+    description: "Mapping strengths and gaps to Tech Nation rubric.",
+    detail: "Innovation · Recognition · Contribution · UK plan",
+  },
+  {
+    id: "strengths",
+    title: "Identifying strengths & gaps",
+    description:
+      "Highlighting what's endorsement-ready and what needs work.",
+    detail: "Exceptional Talent vs Exceptional Promise positioning.",
+  },
+  {
+    id: "timeline",
+    title: "Building your preparation plan",
+    description:
+      "Creating prioritised next steps and a week-by-week timeline.",
+    detail: "Prioritising referee outreach and UK plan drafting.",
+  },
+] as const;
+
+const phaseMotion = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.2 },
+};
+
+export function ResumeScannerMock({
+  title = "markapture — route finder",
+}: {
+  title?: string;
+}) {
   const { ref, isInView } = useDemoInView();
   const [profileIndex, setProfileIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>("scan");
   const [scanProgress, setScanProgress] = useState(0);
 
   const profile = SCAN_PROFILES[profileIndex];
-  const animatedScore = useAnimatedNumber(
-    profile.score,
-    900,
-    phase === "results" && isInView
+  const assessmentResult = useMemo(
+    () => scanProfileToAssessmentResult(profile),
+    [profile]
   );
+
+  const handleAnalyzeComplete = useCallback(() => setPhase("results"), []);
 
   useEffect(() => {
     if (!isInView) {
       setPhase("scan");
       setProfileIndex(0);
       setScanProgress(0);
-      return;
     }
   }, [isInView]);
 
@@ -55,7 +101,7 @@ export function ResumeScannerMock({ title = "markapture — route finder" }: { t
     }, 40);
 
     const next = setTimeout(() => {
-      setPhase("results");
+      setPhase("analyzing");
       setScanProgress(100);
     }, SCAN_MS);
 
@@ -67,329 +113,186 @@ export function ResumeScannerMock({ title = "markapture — route finder" }: { t
 
   useEffect(() => {
     if (!isInView || phase !== "results") return;
-
     const next = setTimeout(() => {
       setProfileIndex((i) => (i + 1) % SCAN_PROFILES.length);
       setPhase("scan");
       setScanProgress(0);
     }, RESULTS_MS);
-
     return () => clearTimeout(next);
   }, [isInView, phase, profileIndex]);
 
   return (
     <ProductFrame ref={ref} title={title}>
-      <div className={cn("grid md:grid-cols-[1.2fr_0.8fr]", PANEL_H)}>
-        <div className={cn("flex flex-col border-b border-white/[0.06] p-3 md:border-b-0 md:border-r", PANEL_H)}>
-          <div className="mb-2 flex shrink-0 items-center justify-between gap-2">
-            <p className="text-[10px] uppercase tracking-wider text-text-muted">
-              Uploaded CV · {profile.techNationFit}
-            </p>
-            {phase === "scan" && (
-              <span className="flex shrink-0 items-center gap-1 rounded-full bg-linear-accent-muted px-2 py-0.5 text-[9px] text-linear-accent">
-                <Loader2 className="size-2.5 animate-spin" />
-                Scanning
-              </span>
-            )}
-          </div>
-
-          <div className="resume-scanner-viewport relative min-h-0 flex-1">
-            <div
-              className={cn(
-                "resume-scanner-paper relative",
-                phase === "scan" && "is-scanning"
-              )}
+      <div
+        className="relative overflow-hidden"
+        style={{ height: FRAME_HEIGHT_PX }}
+      >
+        <AnimatePresence mode="wait">
+          {phase === "scan" && (
+            <motion.div
+              key="scan"
+              {...phaseMotion}
+              className="absolute inset-0 grid md:grid-cols-[1.1fr_0.9fr]"
             >
-              <ResumeDocument profile={profile} variant="scanner" />
+              <ScanPhasePanel profile={profile} progress={scanProgress} />
+              <UploadPromptPanel profile={profile} progress={scanProgress} />
+            </motion.div>
+          )}
 
-              {phase === "scan" && (
-                <div className="resume-scanner-scan-overlay pointer-events-none absolute inset-0 rounded-sm">
-                  <span className="resume-scanner-corner resume-scanner-corner-tl" />
-                  <span className="resume-scanner-corner resume-scanner-corner-tr" />
-                  <span className="resume-scanner-corner resume-scanner-corner-bl" />
-                  <span className="resume-scanner-corner resume-scanner-corner-br" />
-                  <motion.div
-                    className="resume-scanner-beam absolute inset-x-0"
-                    animate={{ top: `${scanProgress}%` }}
-                    transition={{ duration: 0.12, ease: "linear" }}
-                  />
-                  <motion.div
-                    className="absolute inset-x-0 h-8 bg-gradient-to-b from-linear-accent/20 to-transparent"
-                    animate={{ top: `${Math.max(scanProgress - 4, 0)}%` }}
-                    transition={{ duration: 0.12, ease: "linear" }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-2 h-8 shrink-0">
-            <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
-              <div
-                className="h-full rounded-full bg-linear-accent transition-[width] duration-150 ease-linear"
-                style={{ width: `${phase === "scan" ? scanProgress : 100}%` }}
+          {phase === "analyzing" && (
+            <motion.div
+              key="analyzing"
+              {...phaseMotion}
+              className="absolute inset-0 p-3"
+            >
+              <TimelineLoader
+                compact
+                fillHeight
+                title="Building your assessment"
+                subtitle={`Digital Technology · ${profile.name}`}
+                badge="Deep research"
+                stepDuration={DEMO_STEP_MS}
+                completeHoldMs={500}
+                footer="Demo — run the full assessment with your CV"
+                steps={[...DEMO_LOADER_STEPS]}
+                onComplete={handleAnalyzeComplete}
               />
-            </div>
-            <p className="mt-1.5 flex items-center gap-1 text-[9px] text-text-muted">
-              <ScanLine className="size-2.5" />
-              {phase === "scan"
-                ? "Mapping to Tech Nation Digital Technology criteria…"
-                : "Scan complete — results ready"}
-            </p>
-          </div>
-        </div>
+            </motion.div>
+          )}
 
-        <div className={cn("flex min-h-0 flex-col p-4", PANEL_H)}>
-          <div className="scroll-panel min-h-0 flex-1 pr-1">
-            <AnimatePresence mode="wait">
-              {phase === "scan" ? (
-                <motion.div
-                  key="scan-panel"
-                  variants={fadeIn}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                >
-                  <ScanningPanel progress={scanProgress} profile={profile} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="results-panel"
-                  variants={fadeIn}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                >
-                  <ResultsContent profile={profile} score={animatedScore} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+          {phase === "results" && (
+            <motion.div
+              key="results"
+              {...phaseMotion}
+              className="absolute inset-0 overflow-hidden p-3"
+            >
+              <AnalysisResults
+                result={assessmentResult}
+                embedded
+                hideDisclaimer
+                className="h-full"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </ProductFrame>
   );
 }
 
-const SCAN_CRITERIA = [
-  "Innovation in digital technology",
-  "Recognition beyond occupation",
-  "Significant technical contribution",
-  "UK contribution plan",
-] as const;
-
-function ScanningPanel({
-  progress,
+function ScanPhasePanel({
   profile,
+  progress,
 }: {
-  progress: number;
   profile: (typeof SCAN_PROFILES)[number];
+  progress: number;
 }) {
-  const activeCriterion = Math.min(
-    Math.floor((progress / 100) * SCAN_CRITERIA.length),
-    SCAN_CRITERIA.length - 1
-  );
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-wider text-text-muted">
-            Analysing CV
-          </p>
-          <p className="mt-1 text-sm font-medium text-text-primary">
-            Scanning for {profile.route} fit…
-          </p>
-        </div>
-        <span className="flex items-center gap-1 rounded-full bg-linear-accent-muted px-2 py-0.5 text-[9px] text-linear-accent">
+    <div className="flex h-full min-h-0 flex-col border-b border-white/[0.06] p-4 md:border-b-0 md:border-r">
+      <div className="mb-2 flex shrink-0 items-center justify-between gap-2">
+        <p className="text-[10px] uppercase tracking-wider text-text-muted">
+          Step 1 · Upload resume
+        </p>
+        <span className="flex shrink-0 items-center gap-1 rounded-full bg-linear-accent-muted px-2 py-0.5 text-[9px] text-linear-accent">
           <Loader2 className="size-2.5 animate-spin" />
-          {Math.round(progress)}%
+          Scanning
         </span>
       </div>
 
-      <ul className="space-y-2">
-        {SCAN_CRITERIA.map((criterion, i) => {
-          const isActive = i === activeCriterion;
-          const isDone = i < activeCriterion;
+      <div className="resume-scanner-viewport relative min-h-0 flex-1 overflow-hidden">
+        <div className="resume-scanner-paper relative is-scanning h-full max-h-full">
+          <ResumeDocument profile={profile} variant="scanner" />
+          <div className="resume-scanner-scan-overlay pointer-events-none absolute inset-0 rounded-sm">
+            <span className="resume-scanner-corner resume-scanner-corner-tl" />
+            <span className="resume-scanner-corner resume-scanner-corner-tr" />
+            <span className="resume-scanner-corner resume-scanner-corner-bl" />
+            <span className="resume-scanner-corner resume-scanner-corner-br" />
+            <motion.div
+              className="resume-scanner-beam absolute inset-x-0"
+              animate={{ top: `${progress}%` }}
+              transition={{ duration: 0.12, ease: "linear" }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-2 shrink-0">
+        <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
+          <div
+            className="h-full rounded-full bg-linear-accent transition-[width] duration-150 ease-linear"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="mt-1.5 flex items-center gap-1 text-[10px] text-text-muted">
+          <ScanLine className="size-3" />
+          Parsing CV for {profile.techNationFit}…
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function UploadPromptPanel({
+  profile,
+  progress,
+}: {
+  profile: (typeof SCAN_PROFILES)[number];
+  progress: number;
+}) {
+  const checks = [
+    "Innovation in digital technology",
+    "Recognition beyond occupation",
+    "Significant technical contribution",
+    "UK contribution plan",
+  ] as const;
+
+  const activeCheck = Math.min(
+    Math.floor((progress / 100) * checks.length),
+    checks.length - 1
+  );
+
+  return (
+    <div className="flex h-full min-h-0 flex-col justify-center p-4">
+      <div className="rounded-xl border border-dashed border-linear-accent/30 bg-linear-accent-muted/20 p-4 text-center">
+        <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-linear-accent-muted">
+          <Upload className="size-4 text-linear-accent" />
+        </div>
+        <p className="mt-2 text-sm font-medium text-text-primary">
+          {profile.name}&apos;s CV
+        </p>
+        <p className="mt-0.5 text-xs text-text-secondary">
+          {profile.role} · {profile.company}
+        </p>
+      </div>
+
+      <ul className="mt-4 space-y-1.5">
+        {checks.map((label, i) => {
+          const done = i < activeCheck;
+          const active = i === activeCheck;
 
           return (
             <li
-              key={criterion}
+              key={label}
               className={cn(
-                "rounded-md border px-3 py-2.5 transition-colors duration-300",
-                isActive
-                  ? "border-linear-accent/40 bg-linear-accent-muted"
-                  : isDone
-                    ? "border-white/[0.04] bg-surface-elevated/60 opacity-70"
-                    : "border-transparent bg-surface-elevated"
+                "flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[10px] transition-colors",
+                active
+                  ? "border-linear-accent/40 bg-linear-accent-muted/50 text-text-primary"
+                  : done
+                    ? "border-white/[0.04] bg-surface-elevated/60 text-text-secondary"
+                    : "border-transparent bg-surface-elevated text-text-muted"
               )}
             >
-              <div className="flex items-center gap-2">
-                {isDone ? (
-                  <CheckCircle2 className="size-3 shrink-0 text-linear-accent" />
-                ) : isActive ? (
-                  <Loader2 className="size-3 shrink-0 animate-spin text-linear-accent" />
-                ) : (
-                  <ScanLine className="size-3 shrink-0 text-text-muted" />
-                )}
-                <p className="text-[10px] text-text-secondary">{criterion}</p>
-              </div>
-              {isActive && (
-                <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.06]">
-                  <div
-                    className="h-full rounded-full bg-linear-accent transition-[width] duration-150 ease-linear"
-                    style={{
-                      width: `${((progress % 25) / 25) * 100 || 8}%`,
-                    }}
-                  />
-                </div>
+              {done ? (
+                <CheckCircle2 className="size-3 shrink-0 text-linear-accent" />
+              ) : active ? (
+                <Loader2 className="size-3 shrink-0 animate-spin text-linear-accent" />
+              ) : (
+                <ScanLine className="size-3 shrink-0" />
               )}
+              <span className="line-clamp-1">{label}</span>
             </li>
           );
         })}
-      </ul>
-
-      <div className="space-y-2">
-        <SkeletonBlock title="Strengths" count={profile.strengths.length} />
-        <SkeletonBlock title="Gaps to address" count={profile.weaknesses.length} />
-      </div>
-    </div>
-  );
-}
-
-function SkeletonBlock({
-  title,
-  count,
-  showPriority,
-}: {
-  title: string;
-  count: number;
-  showPriority?: boolean;
-}) {
-  return (
-    <div>
-      <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-muted">
-        {title}
-      </p>
-      <ul className="space-y-1.5">
-        {Array.from({ length: count }).map((_, i) => (
-          <li
-            key={`${title}-${i}`}
-            className="rounded-md bg-surface-elevated px-2.5 py-2.5"
-            style={{ animationDelay: `${i * 120}ms` }}
-          >
-            <div className="h-2.5 w-3/4 skeleton-line" style={{ animationDelay: `${i * 80}ms` }} />
-            <div
-              className="mt-2 h-2 w-full skeleton-line"
-              style={{ animationDelay: `${i * 80 + 60}ms` }}
-            />
-            {showPriority && (
-              <div className="mt-2 h-3 w-12 skeleton-line" style={{ animationDelay: `${i * 80 + 120}ms` }} />
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function ResultsContent({
-  profile,
-  score,
-}: {
-  profile: (typeof SCAN_PROFILES)[number];
-  score: number;
-}) {
-  return (
-    <div className="space-y-3">
-      <div className="mb-3 flex items-end justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-wider text-text-muted">
-            Tech Nation fit score
-          </p>
-          <p className="text-2xl font-semibold text-text-primary">
-            {score}
-            <span className="text-sm text-text-muted">/100</span>
-          </p>
-        </div>
-        <span className="rounded bg-linear-accent-muted px-2 py-0.5 text-[10px] font-medium text-linear-accent">
-          {profile.route}
-        </span>
-      </div>
-
-      <CriterionBlock title="Strengths" items={profile.strengths} type="strength" />
-      <CriterionBlock title="Gaps to address" items={profile.weaknesses} type="weakness" />
-      <NextStepsBlock items={profile.nextSteps} />
-    </div>
-  );
-}
-
-function CriterionBlock({
-  title,
-  items,
-  type,
-}: {
-  title: string;
-  items: { criterion: string; detail: string }[];
-  type: "strength" | "weakness";
-}) {
-  const Icon = type === "strength" ? CheckCircle2 : AlertCircle;
-  const iconClass = type === "strength" ? "text-linear-accent" : "text-amber-400";
-
-  return (
-    <div>
-      <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-muted">
-        {title}
-      </p>
-      <ul className="space-y-1.5">
-        {items.map((item) => (
-          <li key={item.criterion} className="rounded-md bg-surface-elevated px-2.5 py-2">
-            <div className="flex items-start gap-2">
-              <Icon className={cn("mt-0.5 size-3 shrink-0", iconClass)} />
-              <div>
-                <p className="text-[10px] font-medium text-text-primary">{item.criterion}</p>
-                <p className="mt-0.5 text-[10px] leading-relaxed text-text-muted">{item.detail}</p>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function NextStepsBlock({
-  items,
-}: {
-  items: { action: string; priority: "high" | "medium" }[];
-}) {
-  return (
-    <div>
-      <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-muted">
-        Next steps
-      </p>
-      <ul className="space-y-1.5">
-        {items.map((item) => (
-          <li
-            key={item.action}
-            className="flex items-start gap-2 rounded-md bg-surface-elevated px-2.5 py-2"
-          >
-            <ArrowRight className="mt-0.5 size-3 shrink-0 text-linear-accent" />
-            <div className="flex-1">
-              <p className="text-[10px] leading-relaxed text-text-secondary">{item.action}</p>
-              <span
-                className={cn(
-                  "mt-1 inline-block rounded px-1.5 py-0.5 text-[9px] font-medium uppercase",
-                  item.priority === "high"
-                    ? "bg-amber-500/15 text-amber-400"
-                    : "bg-white/[0.06] text-text-muted"
-                )}
-              >
-                {item.priority}
-              </span>
-            </div>
-          </li>
-        ))}
       </ul>
     </div>
   );

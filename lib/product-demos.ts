@@ -24,6 +24,8 @@ export type ResumeData = {
   skills?: string[];
 };
 
+import type { AssessmentResult } from "@/lib/assessment";
+
 export type ScanProfile = {
   name: string;
   role: string;
@@ -530,3 +532,46 @@ export const INNOVATOR_SCENARIOS = [
       "High innovation score with solid technical evidence. UK traction and financial consistency are the blockers.",
   },
 ];
+
+/** Maps route-finder demo profiles to the live assessment results shape */
+export function scanProfileToAssessmentResult(
+  profile: ScanProfile
+): AssessmentResult {
+  const summary =
+    profile.resume.summary.length > 140
+      ? `${profile.resume.summary.slice(0, 137)}…`
+      : profile.resume.summary;
+
+  return {
+    score: profile.score,
+    route: `Digital Technology (Tech Nation)`,
+    techNationFit: profile.techNationFit,
+    summary,
+    strengths: profile.strengths.slice(0, 2),
+    gaps: profile.weaknesses.slice(0, 2),
+    nextSteps: profile.nextSteps.slice(0, 2).map((step, i) => ({
+      action: step.action,
+      priority: step.priority,
+      timeline:
+        step.priority === "high"
+          ? "Week 1–2"
+          : i % 2 === 0
+            ? "Week 3–4"
+            : "Before filing",
+    })),
+    preparationTimeline: [
+      {
+        phase: "Evidence audit & positioning",
+        duration: "Week 1",
+        focus: `Confirm ${profile.techNationFit} positioning for ${profile.name}.`,
+      },
+      {
+        phase: "Gap closure & referees",
+        duration: "Week 2–3",
+        focus:
+          profile.weaknesses[0]?.detail ??
+          "Address endorsement gaps and secure senior referees.",
+      },
+    ],
+  };
+}

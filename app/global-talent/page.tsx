@@ -23,8 +23,13 @@ export default function GlobalTalentPage() {
               title="Exceptional talent, structured evidence"
               description="The Global Talent route requires demonstrable exceptional ability or promise. We map your evidence, refine your narrative, and align referees — primarily for Digital Technology (Tech Nation) and related fields."
             />
-            <div className="mt-8">
-              <CTAButton href="/book-consultation">Book consultation</CTAButton>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <CTAButton href="/global-talent/assessment">
+                Free assessment
+              </CTAButton>
+              <CTAButton href="/book-consultation" variant="secondary">
+                Book consultation
+              </CTAButton>
             </div>
           </div>
           <ResumeScannerMock title="markapture — global talent scan" />

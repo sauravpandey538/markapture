@@ -33,10 +33,10 @@ export function CTAButton({
     className
   );
 
-  if (type === "submit") {
+  if (type === "submit" || type === "button") {
     return (
       <button
-        type="submit"
+        type={type}
         onClick={onClick}
         disabled={disabled}
         className={classes}

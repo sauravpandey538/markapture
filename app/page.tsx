@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { CTAButton } from "@/components/ui/CTAButton";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ProcessTimeline } from "@/components/ui/ProcessTimeline";
@@ -42,8 +42,14 @@ export default function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <CTAButton href="/book-consultation">Book free consultation</CTAButton>
-              <CTAButton href="/customers" variant="secondary">
-                Customer stories
+              <CTAButton
+                href="/global-talent/assessment"
+                variant="secondary"
+                className="group inline-flex items-center gap-2 border-linear-accent/30 bg-linear-accent-muted/40 shadow-[0_0_24px_rgba(94,106,210,0.12)] hover:border-linear-accent/50 hover:bg-linear-accent-muted/60"
+              >
+                <Sparkles className="size-4 text-linear-accent transition-transform group-hover:scale-110" />
+                Free GTV Assessment
+                <ArrowRight className="size-3.5 text-linear-accent transition-transform group-hover:translate-x-0.5" />
               </CTAButton>
             </div>
           </div>

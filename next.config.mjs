@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // pdf-parse / pdfjs-dist must run as native Node modules — webpack breaks them
+  experimental: {
+    serverComponentsExternalPackages: ["pdf-parse", "pdfjs-dist", "mammoth"],
+  },
   async redirects() {
     return [
       { source: "/about", destination: "/global-talent", permanent: true },
