@@ -33,9 +33,15 @@ export async function extractResumeText(
 }
 
 async function extractPdf(buffer: Buffer): Promise<string> {
-  // Dynamic import kept external via next.config serverComponentsExternalPackages
+  // pdf-parse wraps pdfjs-dist, which expects browser APIs (DOMMatrix, etc.).
+  // Worker + CanvasFactory polyfill those in Node — must load before PDFParse.
+  await import("pdf-parse/worker");
+  const { CanvasFactory } = await import("pdf-parse/worker");
   const { PDFParse } = await import("pdf-parse");
-  const parser = new PDFParse({ data: new Uint8Array(buffer) });
+  const parser = new PDFParse({
+    data: new Uint8Array(buffer),
+    CanvasFactory,
+  });
   try {
     const result = await parser.getText();
     return result.text ?? "";

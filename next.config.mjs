@@ -2,7 +2,12 @@
 const nextConfig = {
   // pdf-parse / pdfjs-dist must run as native Node modules — webpack breaks them
   experimental: {
-    serverComponentsExternalPackages: ["pdf-parse", "pdfjs-dist", "mammoth"],
+    serverComponentsExternalPackages: [
+      "pdf-parse",
+      "pdfjs-dist",
+      "@napi-rs/canvas",
+      "mammoth",
+    ],
   },
   async redirects() {
     return [
