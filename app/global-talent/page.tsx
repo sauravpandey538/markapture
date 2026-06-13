@@ -27,6 +27,9 @@ export default function GlobalTalentPage() {
               <CTAButton href="/global-talent/assessment">
                 Free assessment
               </CTAButton>
+              <CTAButton href="/global-talent/evidence-review" variant="secondary">
+                Evidence review
+              </CTAButton>
               <CTAButton href="/book-consultation" variant="secondary">
                 Book consultation
               </CTAButton>

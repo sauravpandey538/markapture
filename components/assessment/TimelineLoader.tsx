@@ -29,6 +29,9 @@ type Props = {
   onComplete?: () => void;
   /** ms to hold at 100% before onComplete — demo transitions */
   completeHoldMs?: number;
+  /** Hold the final step until externalReady (e.g. API response) before marking complete */
+  waitForExternal?: boolean;
+  externalReady?: boolean;
 };
 
 /** Vertical timeline loader — connector lines align through icon centres */
@@ -43,6 +46,8 @@ export function TimelineLoader({
   fillHeight = false,
   onComplete,
   completeHoldMs = 450,
+  waitForExternal = false,
+  externalReady = false,
 }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [allComplete, setAllComplete] = useState(false);
@@ -67,16 +72,27 @@ export function TimelineLoader({
     return () => clearInterval(timer);
   }, [stepDuration, steps.length, allComplete]);
 
-  // After the final step runs, mark every step done at 100%
+  // After the final step runs, mark every step done — only when external signal received if waitForExternal
   useEffect(() => {
     if (allComplete || activeIndex !== steps.length - 1) return;
+    if (waitForExternal && !externalReady) return;
+
+    const holdMs =
+      waitForExternal && externalReady ? Math.min(stepDuration, 600) : stepDuration;
 
     const finish = setTimeout(() => {
       setAllComplete(true);
-    }, stepDuration);
+    }, holdMs);
 
     return () => clearTimeout(finish);
-  }, [activeIndex, allComplete, stepDuration, steps.length]);
+  }, [
+    activeIndex,
+    allComplete,
+    stepDuration,
+    steps.length,
+    waitForExternal,
+    externalReady,
+  ]);
 
   useEffect(() => {
     if (!allComplete || !onComplete) return;
